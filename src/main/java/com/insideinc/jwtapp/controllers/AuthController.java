@@ -1,58 +1,53 @@
 package com.insideinc.jwtapp.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.insideinc.jwtapp.entity.User;
-import com.insideinc.jwtapp.models.LoginCredentials;
-import com.insideinc.jwtapp.repository.UserRepo;
-import com.insideinc.jwtapp.security.JWTUtil;
+import com.insideinc.jwtapp.models.LoginRequest;
+import com.insideinc.jwtapp.repository.UserRepository;
+import com.insideinc.jwtapp.security.RegistrationResponse;
+import com.insideinc.jwtapp.security.RegistrationResponseProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Collections;
-import java.util.Map;
-
+@Controller
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final UserRepo userRepo;
-    private final JWTUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final RegistrationResponseProvider responseProvider;
 
-    public AuthController(UserRepo userRepo,
-                          JWTUtil jwtUtil,
-                          AuthenticationManager authenticationManager,
-                          PasswordEncoder passwordEncoder) {
-        this.userRepo = userRepo;
-        this.jwtUtil = jwtUtil;
+    public AuthController(
+            UserRepository userRepository,
+            AuthenticationManager authenticationManager,
+            PasswordEncoder passwordEncoder,
+            RegistrationResponseProvider responseProvider
+    ) {
+        this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.responseProvider = responseProvider;
     }
 
     @PostMapping("/register")
-    public Map<String, Object> registerHandler(@RequestBody User user)
-            throws JsonProcessingException {
+    public RegistrationResponse registerHandler(@RequestBody User user) {
         String encodedPass = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPass);
-        userRepo.save(user);
-        String token = jwtUtil.generateToken(user.getEmail());
-        return Collections.singletonMap("jwt-token", token);
+        user.setPasswordHash(encodedPass);
+        userRepository.save(user);
+        return responseProvider.getToken(user.getName());
     }
 
     @PostMapping("/login")
-    public Map<String, Object> loginHandler(@RequestBody LoginCredentials body) {
-        try {
-            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
-                    body.getEmail(),
-                    body.getPassword());
-            authenticationManager.authenticate(authInputToken);
-            String token = jwtUtil.generateToken(body.getEmail());
-            return Collections.singletonMap("jwt-token", token);
-        } catch (AuthenticationException | JsonProcessingException authException) {
-            throw new RuntimeException("Invalid Login Credentials");
-        }
+    public RegistrationResponse loginHandler(@RequestBody LoginRequest body) {
+        UsernamePasswordAuthenticationToken authInputToken =
+                new UsernamePasswordAuthenticationToken(body.getName(),
+                body.getPassword());
+        authenticationManager.authenticate(authInputToken);
+        return responseProvider.getToken(body.getName());
     }
 }

@@ -1,7 +1,7 @@
 package com.insideinc.jwtapp.controllers;
 
 import com.insideinc.jwtapp.entity.User;
-import com.insideinc.jwtapp.repository.UserRepo;
+import com.insideinc.jwtapp.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,18 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
-    public UserController(UserRepo userRepo) {
-        this.userRepo = userRepo;
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/info")
     public User getUsersInfo() {
-      String email = (String) SecurityContextHolder
-              .getContext()
-              .getAuthentication()
-              .getPrincipal();
-      return userRepo.findByEmail(email).get();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findByName(user.getName()).get();
     }
 }

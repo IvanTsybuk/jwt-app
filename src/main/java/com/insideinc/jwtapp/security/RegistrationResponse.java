@@ -8,6 +8,6 @@ import lombok.Value;
 @Value
 @AllArgsConstructor
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
-public class Token {
-    String name;
+public class RegistrationResponse {
+    String tokenName;
 }

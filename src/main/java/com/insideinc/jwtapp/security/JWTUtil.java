@@ -15,11 +15,11 @@ public class JWTUtil {
     @Value("${jwt_secret}")
     private String secret;
 
-    public String generateToken(String email) throws JsonProcessingException {
+    public String generateToken(String name) throws JsonProcessingException {
         return
                 JWT.create()
-                .withSubject("User details")
-                .withClaim("email", email)
+                .withSubject("Name")
+                .withClaim("name", name)
                 .withIssuedAt(new Date())
                 .withIssuer("INSIDEINC")
                 .sign(Algorithm.HMAC256(secret));
@@ -28,10 +28,10 @@ public class JWTUtil {
     public String validateTokenRetrieveSubject(String token) {
 
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
-                .withSubject("User Details")
-                .withIssuer("")
+                .withSubject("Name")
+                .withIssuer("jwt-app")
                 .build();
         DecodedJWT jwt = verifier.verify(token);
-        return jwt.getClaim("email").asString();
+        return jwt.getClaim("name").asString();
     }
 }

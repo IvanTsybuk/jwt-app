@@ -1,6 +1,5 @@
 package com.insideinc.jwtapp.security;
 
-import com.insideinc.jwtapp.repository.UserRepo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,12 +19,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     public static final String ROLE = "USER";
     public static final String CONFIG_ERROR = "Unauthorized";
-    private final UserRepo userRepo;
     private final JWTFilter filter;
     private final MyUserDetailsService uds;
 
-    public SecurityConfig(UserRepo userRepo, JWTFilter filter, MyUserDetailsService uds) {
-        this.userRepo = userRepo;
+    public SecurityConfig(JWTFilter filter, MyUserDetailsService uds) {
         this.filter = filter;
         this.uds = uds;
     }

@@ -1,7 +1,7 @@
 package com.insideinc.jwtapp.security;
 
 import com.insideinc.jwtapp.entity.User;
-import com.insideinc.jwtapp.repository.UserRepo;
+import com.insideinc.jwtapp.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,21 +13,21 @@ import java.util.Optional;
 
 @Component
 public class MyUserDetailsService implements UserDetailsService {
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
-    public MyUserDetailsService(UserRepo userRepo) {
-        this.userRepo = userRepo;
+    public MyUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> userRes = userRepo.findByEmail(email);
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        Optional<User> userRes = userRepository.findByName(userName);
         if (userRes.isEmpty()) {
-            throw new UsernameNotFoundException("Could not findUser with email = " + email);
+            throw new UsernameNotFoundException("Could not findUser with userName = " + userName);
         }
         User user = userRes.get();
         return new org.springframework.security.core.userdetails.User(
-                email,
+                userName,
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
