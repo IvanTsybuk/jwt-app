@@ -20,9 +20,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String ROLE = "USER";
     public static final String CONFIG_ERROR = "Unauthorized";
     private final JWTFilter filter;
-    private final MyUserDetailsService uds;
+    private final UserDetailsService uds;
 
-    public SecurityConfig(JWTFilter filter, MyUserDetailsService uds) {
+    public SecurityConfig(JWTFilter filter, UserDetailsService uds) {
         this.filter = filter;
         this.uds = uds;
     }

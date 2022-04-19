@@ -1,6 +1,5 @@
 package com.insideinc.jwtapp.security;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,43 +15,34 @@ import java.io.IOException;
 @Component
 public class JWTFilter extends OncePerRequestFilter {
 
-    private final MyUserDetailsService userDetailsService;
-    private final JWTUtil jwtUtil;
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String PREFIX = "Bearer ";
+    private final UserDetailsService userDetailsService;
+    private final JWTService jwtService;
 
-    public JWTFilter(MyUserDetailsService userDetailsService, JWTUtil jwtUtil) {
+    public JWTFilter(UserDetailsService userDetailsService, JWTService jwtService) {
         this.userDetailsService = userDetailsService;
-        this.jwtUtil = jwtUtil;
+        this.jwtService = jwtService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if(authHeader != null && !authHeader.isBlank() && authHeader.startsWith("Bearer ")){
+        String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+        if(authHeader != null && !authHeader.isBlank() && authHeader.startsWith(PREFIX)){
             String jwt = authHeader.substring(7);
-            if(jwt.isBlank()){
-                response.sendError(
-                        HttpServletResponse.SC_BAD_REQUEST,
-                        "Invalid JWT Token in Bearer Header");
-            } else {
-                try{
-                    String email = jwtUtil.validateTokenRetrieveSubject(jwt);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    email,
-                                    userDetails.getPassword(),
-                                    userDetails.getAuthorities());
-                    if(SecurityContextHolder.getContext().getAuthentication() == null){
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }
-                }catch(JWTVerificationException exc){
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token");
-                }
+            String name = this.jwtService.validateTokenRetrieveSubject(jwt);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(name);
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            name,
+                            userDetails.getPassword(),
+                            userDetails.getAuthorities());
+            if(SecurityContextHolder.getContext().getAuthentication() == null){
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }
