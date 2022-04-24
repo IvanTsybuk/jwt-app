@@ -1,5 +1,6 @@
 FROM adoptopenjdk:11-jre-hotspot
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} jwt-app.jar
-EXPOSE 3333
-ENTRYPOINT ["java","-jar","/jwt-app.jar"]
+COPY . /jwt-app.jar
+ARG secrets
+ENV SECRETS={secrets:-jwt_secret}
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/jwt-app.jar", "echo env var: ${SECRETS}"]

@@ -7,7 +7,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class ExceptionResponseDto {
+public class ExceptionResponse {
 
     private String message;
     @JsonInclude(Include.NON_EMPTY)
@@ -16,10 +16,10 @@ public class ExceptionResponseDto {
     private List<String> stackTrace;
     private LocalDateTime timestamp;
 
-    public ExceptionResponseDto() {
+    public ExceptionResponse() {
     }
 
-    public ExceptionResponseDto(String message, LocalDateTime timestamp) {
+    public ExceptionResponse(String message, LocalDateTime timestamp) {
         this.message = message;
         this.timestamp = timestamp;
     }

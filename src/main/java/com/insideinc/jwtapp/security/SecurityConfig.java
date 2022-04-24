@@ -11,8 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.http.HttpServletResponse;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -20,9 +18,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String ROLE = "USER";
     public static final String CONFIG_ERROR = "Unauthorized";
     private final JWTFilter filter;
-    private final UserDetailsService uds;
+    private final UserDetailsServiceImpl uds;
 
-    public SecurityConfig(JWTFilter filter, UserDetailsService uds) {
+    public SecurityConfig(JWTFilter filter, UserDetailsServiceImpl uds) {
         this.filter = filter;
         this.uds = uds;
     }
@@ -36,13 +34,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeHttpRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/user/**").hasRole(ROLE)
-                .and()
-                .userDetailsService(uds)
-                .exceptionHandling()
-                .authenticationEntryPoint(
-                        (request, response, authException) ->
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, CONFIG_ERROR)
-                )
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

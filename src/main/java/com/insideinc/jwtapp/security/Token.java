@@ -9,5 +9,5 @@ import lombok.Value;
 @AllArgsConstructor
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 public class Token {
-    String tokenName;
+    String token;
 }

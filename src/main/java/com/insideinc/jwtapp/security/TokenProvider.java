@@ -6,4 +6,5 @@ import com.insideinc.jwtapp.models.LoginRequest;
 public interface TokenProvider {
     Token getTokenLogin(LoginRequest loginRequest);
     User getUserFromToken(Token token);
+    String validateTokenRetrieveSubject(String token);
 }
