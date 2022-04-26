@@ -16,13 +16,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     public static final String ROLE = "USER";
-    public static final String CONFIG_ERROR = "Unauthorized";
     private final JWTFilter filter;
-    private final UserDetailsServiceImpl uds;
 
-    public SecurityConfig(JWTFilter filter, UserDetailsServiceImpl uds) {
+    public SecurityConfig(JWTFilter filter) {
         this.filter = filter;
-        this.uds = uds;
     }
 
     @Override

@@ -20,7 +20,7 @@ public class UserController {
 
     @GetMapping("/info")
     public User getUsersInfo() {
-        Token principal = (Token) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return tokenProvider.getUserFromToken(principal);
+        Token token = (Token) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return tokenProvider.getUserFromToken(token);
     }
 }

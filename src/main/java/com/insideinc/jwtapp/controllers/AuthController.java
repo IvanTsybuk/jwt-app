@@ -6,6 +6,7 @@ import com.insideinc.jwtapp.repository.UserRepository;
 import com.insideinc.jwtapp.security.TokenProvider;
 import com.insideinc.jwtapp.security.TokenProviderImpl;
 import com.insideinc.jwtapp.security.Token;
+import com.insideinc.jwtapp.security.UserDetailsServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,18 +20,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
 
     public AuthController(
-            UserRepository userRepository,
+           UserDetailsServiceImpl userDetailsServiceImpl,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder,
             TokenProviderImpl tokenProvider
     ) {
-        this.userRepository = userRepository;
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
@@ -40,7 +41,7 @@ public class AuthController {
     public ResponseEntity<Void> registerHandler(@RequestBody User user) {
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPasswordHash(encodedPass);
-        userRepository.save(user);
+        userDetailsServiceImpl.saveUser(user);
         return ResponseEntity.ok().build();
     }
 

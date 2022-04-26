@@ -17,11 +17,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String PREFIX = "Bearer ";
-    private static final int HEADER_SIZE = 7;
-    private final TokenProvider tokenProvider;
+    private final UserDetails userDetails;
 
-    public JWTFilter(TokenProvider tokenProvider) {
-        this.tokenProvider = tokenProvider;
+    public JWTFilter(UserDetails userDetails) {
+        this.userDetails = userDetails;
     }
 
     @Override
@@ -30,15 +29,9 @@ public class JWTFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
         if(authHeader != null && !authHeader.isBlank() && authHeader.startsWith(PREFIX)){
-            String jwt = authHeader.substring(HEADER_SIZE);
-            String name = this.tokenProvider.validateTokenRetrieveSubject(jwt);
-            UserDetails userDetails = (UserDetails) SecurityContextHolder
-                    .getContext()
-                    .getAuthentication()
-                    .getPrincipal();
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
-                            name,
+                            userDetails.getUsername(),
                             userDetails.getPassword(),
                             userDetails.getAuthorities());
             if(SecurityContextHolder.getContext().getAuthentication() == null){
