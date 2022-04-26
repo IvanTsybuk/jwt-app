@@ -1,0 +1,13 @@
+version: "3"
+services:
+  jwt_app_db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=bestuser
+      - MYSQL_DATABASE=jwt_app_db
+  jwt_app:
+    build: .
+    depends_on:
+      - jwt_app_db
+    ports:
+      - "8080:8080"
